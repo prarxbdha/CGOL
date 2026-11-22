@@ -1,3 +1,9 @@
+package com.cgol.ui;
+
+import com.cgol.config.AppTheme;
+import com.cgol.ui.components.CenteringPanel;
+import com.cgol.ui.components.MinimalScrollBarUI;
+
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.JComponent;
@@ -5,22 +11,20 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.SwingUtilities;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 
-public class GridApp {
+public final class MainWindow {
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(GridApp::createWindow);
+    private MainWindow() {
     }
 
-    private static void createWindow() {
+    public static void show() {
         JFrame frame = new JFrame("Game of Life");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setBackground(Theme.APP_BACKGROUND);
+        frame.setBackground(AppTheme.APP_BACKGROUND);
 
         GridPanel gridPanel = new GridPanel();
         SettingsPanel settingsPanel = new SettingsPanel(gridPanel);
@@ -49,7 +53,7 @@ public class GridApp {
         });
 
         JPanel mainArea = new JPanel(new BorderLayout());
-        mainArea.setBackground(Theme.APP_BACKGROUND);
+        mainArea.setBackground(AppTheme.APP_BACKGROUND);
         mainArea.add(canvasScroll, BorderLayout.CENTER);
         mainArea.add(createStatsBar(gridPanel), BorderLayout.SOUTH);
 
@@ -65,9 +69,9 @@ public class GridApp {
 
     private static JComponent createStatsBar(GridPanel gridPanel) {
         JPanel bar = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-        bar.setBackground(Theme.APP_BACKGROUND);
+        bar.setBackground(AppTheme.APP_BACKGROUND);
         bar.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createMatteBorder(1, 0, 0, 0, Theme.BORDER),
+            BorderFactory.createMatteBorder(1, 0, 0, 0, AppTheme.BORDER),
             BorderFactory.createEmptyBorder(10, 20, 10, 20)));
 
         JLabel generation = statLabel("GENERATION  " + gridPanel.getGeneration());
@@ -85,8 +89,8 @@ public class GridApp {
 
     private static JLabel statLabel(String text) {
         JLabel label = new JLabel(text);
-        label.setFont(Theme.FONT_SMALL);
-        label.setForeground(Theme.MUTED_TEXT);
+        label.setFont(AppTheme.FONT_SMALL);
+        label.setForeground(AppTheme.MUTED_TEXT);
         return label;
     }
 }

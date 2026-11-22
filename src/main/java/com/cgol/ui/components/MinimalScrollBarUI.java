@@ -1,3 +1,7 @@
+package com.cgol.ui.components;
+
+import com.cgol.config.AppTheme;
+
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.plaf.basic.BasicScrollBarUI;
@@ -37,9 +41,9 @@ public class MinimalScrollBarUI extends BasicScrollBarUI {
     protected void paintThumb(Graphics g, JComponent c, Rectangle bounds) {
         Graphics2D g2 = (Graphics2D) g.create();
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        Shape thumb = Theme.roundedRectangle(bounds.x + 3f, bounds.y + 3f,
+        Shape thumb = AppTheme.roundedRectangle(bounds.x + 3f, bounds.y + 3f,
             bounds.width - 6f, bounds.height - 6f, 5f);
-        g2.setColor(isDragging ? Theme.MUTED_TEXT : Theme.BORDER);
+        g2.setColor(isDragging ? AppTheme.MUTED_TEXT : AppTheme.BORDER);
         g2.fill(thumb);
         g2.dispose();
     }

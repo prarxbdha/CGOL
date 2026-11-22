@@ -1,3 +1,7 @@
+package com.cgol.ui.components;
+
+import com.cgol.config.AppTheme;
+
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JColorChooser;
@@ -15,7 +19,7 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ColorPickerControl extends JPanel {
+public class ColorPicker extends JPanel {
 
     public interface Listener {
         void colorChanged(Color color);
@@ -26,7 +30,7 @@ public class ColorPickerControl extends JPanel {
     private final List<Listener> listeners = new ArrayList<>();
     private Color color;
 
-    public ColorPickerControl(String name, Color initial) {
+    public ColorPicker(String name, Color initial) {
         this.name = name;
         this.color = initial;
 
@@ -38,10 +42,10 @@ public class ColorPickerControl extends JPanel {
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                Shape shape = Theme.roundedRectangle(0.5f, 0.5f, getWidth() - 1f, getHeight() - 1f, 4f);
+                Shape shape = AppTheme.roundedRectangle(0.5f, 0.5f, getWidth() - 1f, getHeight() - 1f, 4f);
                 g2.setColor(color);
                 g2.fill(shape);
-                g2.setColor(Theme.BORDER);
+                g2.setColor(AppTheme.BORDER);
                 g2.draw(shape);
                 g2.dispose();
             }
@@ -58,8 +62,8 @@ public class ColorPickerControl extends JPanel {
         });
 
         JLabel label = new JLabel(name);
-        label.setFont(Theme.FONT);
-        label.setForeground(Theme.TEXT);
+        label.setFont(AppTheme.FONT);
+        label.setForeground(AppTheme.TEXT);
         label.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));
 
         add(swatch);

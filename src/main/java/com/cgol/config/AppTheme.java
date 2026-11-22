@@ -1,10 +1,12 @@
+package com.cgol.config;
+
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Shape;
 import java.awt.geom.Path2D;
 import java.awt.geom.RoundRectangle2D;
 
-public final class Theme {
+public final class AppTheme {
 
     public static final Color APP_BACKGROUND = color("#F7F7F5");
     public static final Color CANVAS_BACKGROUND = color("#FFFFFF");
@@ -19,7 +21,7 @@ public final class Theme {
     public static final Font FONT_SMALL = new Font(Font.SANS_SERIF, Font.PLAIN, 11);
     public static final Font FONT_TITLE = new Font(Font.SANS_SERIF, Font.BOLD, 13);
 
-    private Theme() {
+    private AppTheme() {
     }
 
     public static Color color(String hex) {

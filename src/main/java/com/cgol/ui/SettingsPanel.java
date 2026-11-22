@@ -1,3 +1,11 @@
+package com.cgol.ui;
+
+import com.cgol.config.AppTheme;
+import com.cgol.ui.components.ColorPicker;
+import com.cgol.ui.components.MinimalButton;
+import com.cgol.ui.components.MinimalScrollBarUI;
+import com.cgol.ui.components.ParameterControl;
+
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -17,25 +25,25 @@ public class SettingsPanel extends JScrollPane {
 
     public SettingsPanel(GridPanel gridPanel) {
         JPanel content = new JPanel(new GridBagLayout());
-        content.setBackground(Theme.APP_BACKGROUND);
+        content.setBackground(AppTheme.APP_BACKGROUND);
         content.setBorder(BorderFactory.createEmptyBorder(22, 20, 22, 20));
 
         setViewportView(content);
-        setBorder(BorderFactory.createMatteBorder(0, 1, 0, 0, Theme.BORDER));
+        setBorder(BorderFactory.createMatteBorder(0, 1, 0, 0, AppTheme.BORDER));
         setPreferredSize(new Dimension(268, 640));
         setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         getVerticalScrollBar().setUI(new MinimalScrollBarUI());
         getVerticalScrollBar().setUnitIncrement(16);
-        getVerticalScrollBar().setBackground(Theme.APP_BACKGROUND);
-        getViewport().setBackground(Theme.APP_BACKGROUND);
+        getVerticalScrollBar().setBackground(AppTheme.APP_BACKGROUND);
+        getViewport().setBackground(AppTheme.APP_BACKGROUND);
 
         JLabel title = new JLabel("GAME OF LIFE");
-        title.setFont(Theme.FONT_TITLE);
-        title.setForeground(Theme.TEXT);
+        title.setFont(AppTheme.FONT_TITLE);
+        title.setForeground(AppTheme.TEXT);
 
         JSeparator separator = new JSeparator();
-        separator.setForeground(Theme.BORDER);
-        separator.setBackground(Theme.BORDER);
+        separator.setForeground(AppTheme.BORDER);
+        separator.setBackground(AppTheme.BORDER);
 
         ParameterControl rows = new ParameterControl("Rows", gridPanel.getRows(), 5, 100);
         ParameterControl columns = new ParameterControl("Columns", gridPanel.getCols(), 5, 100);
@@ -47,9 +55,9 @@ public class SettingsPanel extends JScrollPane {
         cellSize.addListener(gridPanel::setCellSize);
         tickInterval.addListener(gridPanel::setTickInterval);
 
-        ColorPickerControl alive = new ColorPickerControl("Alive cells", gridPanel.getAliveColor());
-        ColorPickerControl dead = new ColorPickerControl("Dead cells", gridPanel.getDeadColor());
-        ColorPickerControl canvas = new ColorPickerControl("Canvas", gridPanel.getCanvasBackground());
+        ColorPicker alive = new ColorPicker("Alive cells", gridPanel.getAliveColor());
+        ColorPicker dead = new ColorPicker("Dead cells", gridPanel.getDeadColor());
+        ColorPicker canvas = new ColorPicker("Canvas", gridPanel.getCanvasBackground());
 
         alive.addListener(gridPanel::setAliveColor);
         dead.addListener(gridPanel::setDeadColor);

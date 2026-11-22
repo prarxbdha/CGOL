@@ -1,3 +1,8 @@
+package com.cgol.ui;
+
+import com.cgol.config.AppTheme;
+import com.cgol.model.GameOfLife;
+
 import javax.swing.JPanel;
 import javax.swing.Timer;
 import java.awt.BasicStroke;
@@ -16,20 +21,17 @@ import java.util.Objects;
 
 public class GridPanel extends JPanel {
 
-    private int rows = 20;
-    private int cols = 20;
     private int cellSize = 25;
     private int cellGap = 2;
     private int tickInterval = 500;
 
-    private boolean[][] grid;
+    private final GameOfLife model;
     private final Timer timer;
 
-    private Color aliveColor = Theme.ACCENT;
-    private Color deadColor = Theme.DEAD_CELL;
-    private Color canvasColor = Theme.CANVAS_BACKGROUND;
+    private Color aliveColor = AppTheme.ACCENT;
+    private Color deadColor = AppTheme.DEAD_CELL;
+    private Color canvasColor = AppTheme.CANVAS_BACKGROUND;
 
-    private int generation = 0;
     private int livingCells = 0;
 
     private Point hoveredCell;
@@ -39,12 +41,16 @@ public class GridPanel extends JPanel {
     private Shape cellShape;
 
     public GridPanel() {
-        grid = new boolean[rows][cols];
+        this(new GameOfLife(20, 20));
+    }
+
+    public GridPanel(GameOfLife model) {
+        this.model = model;
         setBackground(canvasColor);
         rebuildCellShape();
         updatePanelSize();
 
-        timer = new Timer(tickInterval, e -> advanceGeneration());
+        timer = new Timer(tickInterval, e -> step());
         timer.setInitialDelay(tickInterval);
 
         MouseAdapter mouse = new MouseAdapter() {
@@ -81,11 +87,11 @@ public class GridPanel extends JPanel {
     }
 
     public int getRows() {
-        return rows;
+        return model.getRows();
     }
 
     public int getCols() {
-        return cols;
+        return model.getCols();
     }
 
     public int getCellSize() {
@@ -97,7 +103,7 @@ public class GridPanel extends JPanel {
     }
 
     public int getGeneration() {
-        return generation;
+        return model.getGeneration();
     }
 
     public int getLivingCellCount() {
@@ -122,16 +128,7 @@ public class GridPanel extends JPanel {
 
     public void setGridSize(int newRows, int newCols) {
         pauseSimulation();
-
-        boolean[][] resized = new boolean[newRows][newCols];
-        for (int row = 0; row < Math.min(newRows, grid.length); row++) {
-            int shared = Math.min(newCols, grid[row].length);
-            System.arraycopy(grid[row], 0, resized[row], 0, shared);
-        }
-
-        rows = newRows;
-        cols = newCols;
-        grid = resized;
+        model.resize(newRows, newCols);
         painting = false;
         updateHover(null);
         updatePanelSize();
@@ -202,71 +199,35 @@ public class GridPanel extends JPanel {
 
     public void clearGrid() {
         pauseSimulation();
-        grid = new boolean[rows][cols];
+        int previous = model.getGeneration();
+        model.clear();
         painting = false;
-        setGeneration(0);
+        firePropertyChange("generation", previous, model.getGeneration());
+        updateStats();
+        repaint();
+    }
+
+    private void step() {
+        int previous = model.getGeneration();
+        model.nextGeneration();
+        firePropertyChange("generation", previous, model.getGeneration());
         updateStats();
         repaint();
     }
 
     private void rebuildCellShape() {
         cellGap = cellSize >= 14 ? 2 : 1;
-        cellShape = Theme.squircle(0, 0, cellSize - cellGap);
+        cellShape = AppTheme.squircle(0, 0, cellSize - cellGap);
     }
 
     private void updatePanelSize() {
-        setPreferredSize(new Dimension(cols * cellSize, rows * cellSize));
+        setPreferredSize(new Dimension(model.getCols() * cellSize, model.getRows() * cellSize));
         revalidate();
         repaint();
     }
 
-    private void advanceGeneration() {
-        boolean[][] next = new boolean[rows][cols];
-
-        for (int row = 0; row < rows; row++) {
-            for (int col = 0; col < cols; col++) {
-                int neighbors = countNeighbors(row, col);
-                if (grid[row][col]) {
-                    next[row][col] = neighbors == 2 || neighbors == 3;
-                } else {
-                    next[row][col] = neighbors == 3;
-                }
-            }
-        }
-
-        grid = next;
-        setGeneration(generation + 1);
-        updateStats();
-        repaint();
-    }
-
-    private int countNeighbors(int row, int col) {
-        int count = 0;
-        for (int dr = -1; dr <= 1; dr++) {
-            for (int dc = -1; dc <= 1; dc++) {
-                if (dr == 0 && dc == 0) {
-                    continue;
-                }
-                int newRow = row + dr;
-                int newCol = col + dc;
-                if (newRow >= 0 && newRow < rows && newCol >= 0 && newCol < cols
-                        && grid[newRow][newCol]) {
-                    count++;
-                }
-            }
-        }
-        return count;
-    }
-
     private void updateStats() {
-        int count = 0;
-        for (boolean[] line : grid) {
-            for (boolean cell : line) {
-                if (cell) {
-                    count++;
-                }
-            }
-        }
+        int count = model.getLivingCellCount();
         if (count != livingCells) {
             int previous = livingCells;
             livingCells = count;
@@ -274,19 +235,10 @@ public class GridPanel extends JPanel {
         }
     }
 
-    private void setGeneration(int value) {
-        if (generation == value) {
-            return;
-        }
-        int previous = generation;
-        generation = value;
-        firePropertyChange("generation", previous, generation);
-    }
-
     private Point cellAt(MouseEvent e) {
         int col = e.getX() / cellSize;
         int row = e.getY() / cellSize;
-        if (row < 0 || row >= rows || col < 0 || col >= cols) {
+        if (row < 0 || row >= model.getRows() || col < 0 || col >= model.getCols()) {
             return null;
         }
         return new Point(col, row);
@@ -301,7 +253,7 @@ public class GridPanel extends JPanel {
             return;
         }
         painting = true;
-        paintAlive = !grid[cell.y][cell.x];
+        paintAlive = !model.isAlive(cell.y, cell.x);
         updateHover(cell);
         applyPaint(cell);
     }
@@ -320,10 +272,10 @@ public class GridPanel extends JPanel {
     }
 
     private void applyPaint(Point cell) {
-        if (grid[cell.y][cell.x] == paintAlive) {
+        if (model.isAlive(cell.y, cell.x) == paintAlive) {
             return;
         }
-        grid[cell.y][cell.x] = paintAlive;
+        model.setAlive(cell.y, cell.x, paintAlive);
         updateStats();
         repaint();
     }
@@ -347,11 +299,11 @@ public class GridPanel extends JPanel {
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         AffineTransform origin = g2.getTransform();
 
-        for (int row = 0; row < rows; row++) {
-            for (int col = 0; col < cols; col++) {
+        for (int row = 0; row < model.getRows(); row++) {
+            for (int col = 0; col < model.getCols(); col++) {
                 g2.setTransform(origin);
                 g2.translate(col * cellSize + cellGap / 2f, row * cellSize + cellGap / 2f);
-                g2.setColor(grid[row][col] ? aliveColor : deadColor);
+                g2.setColor(model.isAlive(row, col) ? aliveColor : deadColor);
                 g2.fill(cellShape);
             }
         }

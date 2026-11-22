@@ -1,3 +1,5 @@
+package com.cgol.ui.components;
+
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JViewport;

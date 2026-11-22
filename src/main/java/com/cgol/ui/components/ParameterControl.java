@@ -1,3 +1,7 @@
+package com.cgol.ui.components;
+
+import com.cgol.config.AppTheme;
+
 import javax.swing.BorderFactory;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
@@ -48,19 +52,19 @@ public class ParameterControl extends JPanel {
         setOpaque(false);
 
         JLabel label = new JLabel(name);
-        label.setFont(Theme.FONT);
-        label.setForeground(Theme.TEXT);
+        label.setFont(AppTheme.FONT);
+        label.setForeground(AppTheme.TEXT);
 
         NumberFormatter formatter = new NumberFormatter(new DecimalFormat("0"));
         formatter.setAllowsInvalid(true);
         input = new JFormattedTextField(formatter);
         input.setValue(initial);
-        input.setFont(Theme.FONT);
-        input.setForeground(Theme.TEXT);
-        input.setBackground(Theme.CANVAS_BACKGROUND);
+        input.setFont(AppTheme.FONT);
+        input.setForeground(AppTheme.TEXT);
+        input.setBackground(AppTheme.CANVAS_BACKGROUND);
         input.setHorizontalAlignment(JFormattedTextField.CENTER);
         input.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(Theme.BORDER, 1, true),
+            BorderFactory.createLineBorder(AppTheme.BORDER, 1, true),
             BorderFactory.createEmptyBorder(3, 4, 3, 4)));
         input.setPreferredSize(new Dimension(58, 26));
         input.setFocusLostBehavior(JFormattedTextField.COMMIT_OR_REVERT);
@@ -183,15 +187,15 @@ public class ParameterControl extends JPanel {
             Rectangle track = trackRect;
             int thickness = 4;
             int y = track.y + (track.height - thickness) / 2;
-            Shape base = Theme.roundedRectangle(track.x, y, track.width, thickness, thickness / 2f);
-            g2.setColor(Theme.BORDER);
+            Shape base = AppTheme.roundedRectangle(track.x, y, track.width, thickness, thickness / 2f);
+            g2.setColor(AppTheme.BORDER);
             g2.fill(base);
 
             double progress = (slider.getValue() - min) / (double) (max - min);
             int filled = (int) Math.round(track.width * progress);
             if (filled > 0) {
-                Shape active = Theme.roundedRectangle(track.x, y, filled, thickness, thickness / 2f);
-                g2.setColor(Theme.ACCENT);
+                Shape active = AppTheme.roundedRectangle(track.x, y, filled, thickness, thickness / 2f);
+                g2.setColor(AppTheme.ACCENT);
                 g2.fill(active);
             }
             g2.dispose();
@@ -208,9 +212,9 @@ public class ParameterControl extends JPanel {
             float y = bounds.y + (bounds.height - diameter) / 2f;
             Ellipse2D thumb = new Ellipse2D.Float(x, y, diameter, diameter);
 
-            g2.setColor(Theme.CANVAS_BACKGROUND);
+            g2.setColor(AppTheme.CANVAS_BACKGROUND);
             g2.fill(thumb);
-            g2.setColor(Theme.ACCENT);
+            g2.setColor(AppTheme.ACCENT);
             g2.setStroke(new BasicStroke(1.5f));
             g2.draw(thumb);
             g2.dispose();

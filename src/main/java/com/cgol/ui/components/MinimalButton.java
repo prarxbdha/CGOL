@@ -1,3 +1,7 @@
+package com.cgol.ui.components;
+
+import com.cgol.config.AppTheme;
+
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -20,7 +24,7 @@ public class MinimalButton extends JButton {
 
     public MinimalButton(String text, Style style) {
         super(text);
-        setFont(Theme.FONT_BOLD);
+        setFont(AppTheme.FONT_BOLD);
         setFocusPainted(false);
         setContentAreaFilled(false);
         setOpaque(false);
@@ -51,21 +55,21 @@ public class MinimalButton extends JButton {
             Color textColor;
 
             if (!enabled) {
-                background = Theme.APP_BACKGROUND;
-                outline = Theme.BORDER;
-                textColor = Theme.MUTED_TEXT;
+                background = AppTheme.APP_BACKGROUND;
+                outline = AppTheme.BORDER;
+                textColor = AppTheme.MUTED_TEXT;
             } else if (style == Style.PRIMARY) {
-                background = pressed ? Theme.TEXT.darker()
-                    : rollover ? Theme.TEXT.brighter() : Theme.TEXT;
-                textColor = Theme.CANVAS_BACKGROUND;
+                background = pressed ? AppTheme.TEXT.darker()
+                    : rollover ? AppTheme.TEXT.brighter() : AppTheme.TEXT;
+                textColor = AppTheme.CANVAS_BACKGROUND;
             } else {
-                background = pressed ? Theme.DEAD_CELL
-                    : rollover ? Theme.APP_BACKGROUND : Theme.CANVAS_BACKGROUND;
-                outline = Theme.BORDER;
-                textColor = Theme.TEXT;
+                background = pressed ? AppTheme.DEAD_CELL
+                    : rollover ? AppTheme.APP_BACKGROUND : AppTheme.CANVAS_BACKGROUND;
+                outline = AppTheme.BORDER;
+                textColor = AppTheme.TEXT;
             }
 
-            Shape shape = Theme.roundedRectangle(0.5f, 0.5f, c.getWidth() - 1f, c.getHeight() - 1f, 8f);
+            Shape shape = AppTheme.roundedRectangle(0.5f, 0.5f, c.getWidth() - 1f, c.getHeight() - 1f, 8f);
             g2.setColor(background);
             g2.fill(shape);
             if (outline != null) {
@@ -73,7 +77,7 @@ public class MinimalButton extends JButton {
                 g2.draw(shape);
             }
             if (button.isFocusOwner()) {
-                g2.setColor(Theme.ACCENT);
+                g2.setColor(AppTheme.ACCENT);
                 g2.draw(shape);
             }
 
