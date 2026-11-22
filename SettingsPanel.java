@@ -1,160 +1,110 @@
+import javax.swing.BorderFactory;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
+import java.awt.Insets;
 
-import javax.swing.*;
-import java.awt.*;
+public class SettingsPanel extends JScrollPane {
 
-public class SettingsPanel extends JPanel {
+    private final MinimalButton startButton;
+    private final MinimalButton pauseButton;
 
     public SettingsPanel(GridPanel gridPanel) {
+        JPanel content = new JPanel(new GridBagLayout());
+        content.setBackground(Theme.APP_BACKGROUND);
+        content.setBorder(BorderFactory.createEmptyBorder(22, 20, 22, 20));
 
-        setPreferredSize(new Dimension(230, 650));
-        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        setViewportView(content);
+        setBorder(BorderFactory.createMatteBorder(0, 1, 0, 0, Theme.BORDER));
+        setPreferredSize(new Dimension(268, 640));
+        setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        getVerticalScrollBar().setUI(new MinimalScrollBarUI());
+        getVerticalScrollBar().setUnitIncrement(16);
+        getVerticalScrollBar().setBackground(Theme.APP_BACKGROUND);
+        getViewport().setBackground(Theme.APP_BACKGROUND);
 
-        setBackground(new Color(35, 40, 45));
-
-        setBorder(
-            BorderFactory.createEmptyBorder(20, 15, 20, 15)
-        );
-
-        // TITLE
         JLabel title = new JLabel("GAME OF LIFE");
-        title.setFont(new Font("Arial", Font.BOLD, 18));
-        title.setForeground(Color.WHITE);
-        title.setAlignmentX(Component.LEFT_ALIGNMENT);
+        title.setFont(Theme.FONT_TITLE);
+        title.setForeground(Theme.TEXT);
 
-        add(title);
-        add(Box.createVerticalStrut(30));
+        JSeparator separator = new JSeparator();
+        separator.setForeground(Theme.BORDER);
+        separator.setBackground(Theme.BORDER);
 
-        // ROWS
-        addLabel("Rows");
+        ParameterControl rows = new ParameterControl("Rows", gridPanel.getRows(), 5, 100);
+        ParameterControl columns = new ParameterControl("Columns", gridPanel.getCols(), 5, 100);
+        ParameterControl cellSize = new ParameterControl("Cell size", gridPanel.getCellSize(), 8, 48);
+        ParameterControl tickInterval = new ParameterControl("Tick interval (ms)", gridPanel.getTickInterval(), 50, 2000);
 
-        JSpinner rowsSpinner = new JSpinner(
-            new SpinnerNumberModel(20, 1, 100, 1)
-        );
+        rows.addListener(v -> gridPanel.setGridSize(rows.getValue(), columns.getValue()));
+        columns.addListener(v -> gridPanel.setGridSize(rows.getValue(), columns.getValue()));
+        cellSize.addListener(gridPanel::setCellSize);
+        tickInterval.addListener(gridPanel::setTickInterval);
 
-        rowsSpinner.setMaximumSize(new Dimension(190, 30));
-        rowsSpinner.setAlignmentX(Component.LEFT_ALIGNMENT);
-        add(rowsSpinner);
+        ColorPickerControl alive = new ColorPickerControl("Alive cells", gridPanel.getAliveColor());
+        ColorPickerControl dead = new ColorPickerControl("Dead cells", gridPanel.getDeadColor());
+        ColorPickerControl canvas = new ColorPickerControl("Canvas", gridPanel.getCanvasBackground());
 
-        add(Box.createVerticalStrut(15));
+        alive.addListener(gridPanel::setAliveColor);
+        dead.addListener(gridPanel::setDeadColor);
+        canvas.addListener(gridPanel::setCanvasBackground);
 
-        // COLUMNS
-        addLabel("Columns");
+        startButton = new MinimalButton("Start", MinimalButton.Style.PRIMARY);
+        pauseButton = new MinimalButton("Pause", MinimalButton.Style.NEUTRAL);
+        MinimalButton clearButton = new MinimalButton("Clear", MinimalButton.Style.NEUTRAL);
 
-        JSpinner colsSpinner = new JSpinner(
-            new SpinnerNumberModel(20, 1, 100, 1)
-        );
+        startButton.addActionListener(e -> gridPanel.startSimulation());
+        pauseButton.addActionListener(e -> gridPanel.pauseSimulation());
+        clearButton.addActionListener(e -> gridPanel.clearGrid());
+        pauseButton.setEnabled(false);
 
-        colsSpinner.setMaximumSize(new Dimension(190, 30));
-        colsSpinner.setAlignmentX(Component.LEFT_ALIGNMENT);
-        add(colsSpinner);
-
-        add(Box.createVerticalStrut(20));
-
-        // TILE SIZE
-        addLabel("Tile Size (pixels)");
-
-        JSpinner tileSizeSpinner = new JSpinner(
-            new SpinnerNumberModel(25, 5, 60, 1)
-        );
-
-        tileSizeSpinner.setMaximumSize(new Dimension(190, 30));
-        tileSizeSpinner.setAlignmentX(Component.LEFT_ALIGNMENT);
-        add(tileSizeSpinner);
-
-        // START BUTTON
-        JButton startButton = new JButton("Start");
-        startButton.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-        // STOP BUTTON
-        JButton stopButton = new JButton("Stop");
-        stopButton.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-        // GRID SIZE LISTENERS
-        rowsSpinner.addChangeListener(e -> {
-            gridPanel.setGridSize(
-                (int) rowsSpinner.getValue(),
-                (int) colsSpinner.getValue()
-            );
-
-            startButton.setEnabled(true);
-            stopButton.setEnabled(false);
+        gridPanel.addPropertyChangeListener("simulationRunning", e -> {
+            boolean running = (Boolean) e.getNewValue();
+            startButton.setEnabled(!running);
+            pauseButton.setEnabled(running);
         });
 
-        colsSpinner.addChangeListener(e -> {
-            gridPanel.setGridSize(
-                (int) rowsSpinner.getValue(),
-                (int) colsSpinner.getValue()
-            );
+        JPanel secondaryButtons = new JPanel(new GridLayout(1, 2, 8, 0));
+        secondaryButtons.setOpaque(false);
+        secondaryButtons.add(pauseButton);
+        secondaryButtons.add(clearButton);
 
-            startButton.setEnabled(true);
-            stopButton.setEnabled(false);
-        });
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.weightx = 1;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.anchor = GridBagConstraints.WEST;
 
-        // TILE SIZE LISTENER
-        tileSizeSpinner.addChangeListener(e -> {
-            gridPanel.setTileSize(
-                (int) tileSizeSpinner.getValue()
-            );
-        });
+        addRow(content, gbc, 0, title, 0, 10);
+        addRow(content, gbc, 1, separator, 0, 22);
+        addRow(content, gbc, 2, rows, 0, 16);
+        addRow(content, gbc, 3, columns, 0, 16);
+        addRow(content, gbc, 4, cellSize, 0, 16);
+        addRow(content, gbc, 5, tickInterval, 0, 24);
+        addRow(content, gbc, 6, alive, 0, 8);
+        addRow(content, gbc, 7, dead, 0, 8);
+        addRow(content, gbc, 8, canvas, 0, 24);
+        addRow(content, gbc, 9, startButton, 0, 8);
+        addRow(content, gbc, 10, secondaryButtons, 0, 0);
 
-        add(Box.createVerticalStrut(25));
-
-        // SIMULATION CONTROLS
-        addLabel("Simulation");
-
-        startButton.addActionListener(e -> {
-            gridPanel.startSimulation();
-
-            startButton.setEnabled(false);
-            stopButton.setEnabled(true);
-        });
-
-        stopButton.addActionListener(e -> {
-            gridPanel.stopSimulation();
-
-            startButton.setEnabled(true);
-            stopButton.setEnabled(false);
-        });
-
-        stopButton.setEnabled(false);
-
-        add(startButton);
-        add(Box.createVerticalStrut(10));
-        add(stopButton);
-
-        add(Box.createVerticalStrut(20));
-
-        // CLEAR BUTTON
-        JButton clearButton = new JButton("Clear Grid");
-        clearButton.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-        clearButton.addActionListener(e -> {
-            gridPanel.clearGrid();
-
-            startButton.setEnabled(true);
-            stopButton.setEnabled(false);
-        });
-
-        add(clearButton);
-
-        add(Box.createVerticalStrut(25));
-
-        // TIMER INFORMATION
-        JLabel timerLabel = new JLabel("Tick interval: 500 ms");
-        timerLabel.setForeground(Color.LIGHT_GRAY);
-        timerLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-        add(timerLabel);
+        JPanel filler = new JPanel();
+        filler.setOpaque(false);
+        gbc.gridy = 11;
+        gbc.weighty = 1;
+        gbc.fill = GridBagConstraints.BOTH;
+        content.add(filler, gbc);
     }
 
-    // HELPER FOR LABELS
-    private void addLabel(String text) {
-
-        JLabel label = new JLabel(text);
-        label.setForeground(Color.WHITE);
-        label.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-        add(label);
-        add(Box.createVerticalStrut(5));
+    private static void addRow(JPanel content, GridBagConstraints gbc, int row,
+                               JComponent component, int top, int bottom) {
+        gbc.gridy = row;
+        gbc.insets = new Insets(top, 0, bottom, 0);
+        content.add(component, gbc);
     }
 }
